@@ -19,6 +19,7 @@
 //        03/04 you can upload BIN images trough the second serial port at high speed. When you
 //        start your program it wil show up on your dumb terminal or TTY.
 //      - Changed the order of the bootstraps to a more logical structure
+// v1.8 - fixed a word in PC04 Punch alternating 1's and 0's program
 // =============================================================================================================
 
 
@@ -265,7 +266,7 @@ const PROGMEM word echo_test_1_to_4_terminals[] = { 0x0200, 0x0000, 0x7300, 0x12
                                                     0x6404, 0x5203, 0x0200 }; // echo 1-4 terminals
 
 const PROGMEM word pc04_punch_alternating_1_0[] = {
-  0x0200, 0x0000, 0x7001, 0x6026, 0x6021, 0x5202, 0x5202, 0x0200
+  0x0200, 0x0000, 0x7001, 0x6026, 0x6021, 0x5202, 0x5200, 0x0200
 }; // PC04 Punch alternating 1's and 0's
 
 const PROGMEM word pc04_tape_read[] = {
@@ -561,7 +562,7 @@ void LoadProgram(const word TheProgram[], int ProgramLength)
   // Get extended address:
   SwitchRegister(pgm_read_word_near(TheProgram++));
   ExtendedAddressLoad();
-  
+
   for (int i = 0; i < (ProgramLength - 3); i++) {
     // Serial.println(pgm_read_word_near(TheProgram+i),HEX);
     SwitchRegister(pgm_read_word_near(TheProgram++));
