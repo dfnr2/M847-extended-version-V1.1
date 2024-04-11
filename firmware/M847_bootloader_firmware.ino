@@ -1,27 +1,3 @@
-// =============================================================================================================
-// Bootloader for Digital PDP8/e PDP8/f PDP8/m computers by Roland Huisman. MIT license
-// V1.1 fixed false run state message
-// V1.2 changed RX(2)8 boot address for RX(2)8 (RX01/RX02) bootloader
-// V1.3 Expanded to currently maximum possible 63 programs, so users can just replace the line with
-// their own boot code V1.4 - Added Kaleidoscope.
-//      - Removed delays and Added variable "SlowDown". So you can determine your own loading speed.
-//        It's set to a quite fast but still blinky rate. Search for unsigned long SlowDown which is
-//        currently set at 35 milliseconds. You can change it if you want to speed up or slow down
-//        the loading. 0 gives the maximum load speed 200 gives a real slow loading.
-// V1.5 Added TA8E TU60 bootstrap for Caps-8 and OS/8 setup cassettes
-// V1.6 Added program 37, receive charachters on 03/04 serial port and place them into AC
-// V1.7 - Updated BIN loader. You don't need to set the switches to 7777 when you want to use the
-// serial port.
-//        It is now permanent set to use the 'low speed reader'. Which actually means that you can
-//        use the serial port at high speed.
-//      - Besides the BIN loader at 03/04 there is now also a secondary BIN loader at 40/41. So if
-//      you have a slow dumb terminal at
-//        03/04 you can upload BIN images trough the second serial port at high speed. When you
-//        start your program it wil show up on your dumb terminal or TTY.
-//      - Changed the order of the bootstraps to a more logical structure
-// v1.8 - fixed a word in PC04 Punch alternating 1's and 0's program
-// =============================================================================================================
-
 
 // =============================================================================================================
 //                                         Bootload programs
@@ -57,6 +33,7 @@
 //                                         Includes
 #include <Wire.h> // I2C handler
 
+#define VERSION 1.8
 
 #define KITT_SCAN_DELAY 40
 
@@ -362,6 +339,8 @@ const PROGMEM program_t programlist[] = {
 
 // =============================================================================================================
 //                                         Variables
+const char version_str = #VERSION
+
 const byte GPIOA = 0x12;  // GPIOA adres in 16-bit mode, 2x 8 I/O ports.
 const byte IOCON = 0x0A;  // IOCON adres in 16-bit mode, I/O Expander Configuration Register.
 const byte IODIRA = 0x00; // IODIRA adres in 16-bit mode, is het I/O Direction Register voor PortA.
@@ -454,7 +433,7 @@ void setup()
 //                                                 Main loop
 void loop()
 {
-  Serial.println("PDP8/E, PDP8/F, PDP8/M bootloader by Roland Huisman V1.6");
+  Serial.println("PDP8/E, PDP8/F, PDP8/M bootloader by Roland Huisman v" #VERSION);
   Serial.println();
   Serial.print("Default program number by dipswitch ");
   Serial.println(ReadDefaultProgramNumber(), HEX);
