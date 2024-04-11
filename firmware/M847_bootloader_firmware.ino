@@ -284,8 +284,8 @@ const PROGMEM word memwipe_field0_vince[] = {
 }; // memory wipe field 0 Vince
 
 
-#define PROGRAM_ENTRY(progname)                                                                    \
-  {                                                                                                \
+#define PROGRAM_ENTRY(position, progname)                                                                    \
+  [position] = {                                                                                                \
     (const word **) &progname, (word) sizeof(progname)                                             \
   }
 #define NO_PROGRAM                                                                                 \
@@ -306,25 +306,25 @@ typedef struct {
 const PROGMEM program_t programlist[] = {
 
   // group 0x
-  NO_PROGRAM,                                // No program 0.
-  PROGRAM_ENTRY(os8_server_40),              //
-  PROGRAM_ENTRY(rx8_rx01_bootloader),        //
-  PROGRAM_ENTRY(rx28_rx02_bootloader),       //
-  PROGRAM_ENTRY(rk05_bootloader_mi8_ed_rk8), //
-  PROGRAM_ENTRY(tu56_td8e_mi8_eh),           //
-  PROGRAM_ENTRY(tu56_tc08_dectape_mi8_ec),   //
-  PROGRAM_ENTRY(tu60_ta8e_caps8),            //
+  PROGRAM_ENTRY(00, NO_PROGRAM),                                // No program 0.
+  PROGRAM_ENTRY(01, os8_server_40),              //
+  PROGRAM_ENTRY(02, rx8_rx01_bootloader),        //
+  PROGRAM_ENTRY(03, rx28_rx02_bootloader),       //
+  PROGRAM_ENTRY(04, rk05_bootloader_mi8_ed_rk8), //
+  PROGRAM_ENTRY(05, tu56_td8e_mi8_eh),           //
+  PROGRAM_ENTRY(06, tu56_tc08_dectape_mi8_ec),   //
+  PROGRAM_ENTRY(07, tu60_ta8e_caps8),            //
 
   // group 1x
 
-  PROGRAM_ENTRY(pc04_pc8e_papertape_mi8_ea), //
-  PROGRAM_ENTRY(rim_loader_03),              //
-  PROGRAM_ENTRY(bin_loader_03),              //
-  PROGRAM_ENTRY(bin_loader_40),              //
-  PROGRAM_ENTRY(kaleidoscope),               //
-  PROGRAM_ENTRY(mi8_ee_typeset),             //
-  PROGRAM_ENTRY(mi8_ef_edusys_low),          //
-  PROGRAM_ENTRY(mi8_eg_edusys_high),
+  PROGRAM_ENTRY(010, pc04_pc8e_papertape_mi8_ea), //
+  PROGRAM_ENTRY(011, 0rim_loader_03),              //
+  PROGRAM_ENTRY(012, bin_loader_03),              //
+  PROGRAM_ENTRY(013, bin_loader_40),              //
+  PROGRAM_ENTRY(014, kaleidoscope),               //
+  PROGRAM_ENTRY(015, mi8_ee_typeset),             //
+  PROGRAM_ENTRY(016, mi8_ef_edusys_low),          //
+  PROGRAM_ENTRY(017, mi8_eg_edusys_high),
 
 
   // from here programs are not selectable by
@@ -332,25 +332,25 @@ const PROGMEM program_t programlist[] = {
   // toggeling the SW switch or pushbutton on the
   // PCB only. group 2x
 
-  PROGRAM_ENTRY(group1_microinstructions_a), //
-  PROGRAM_ENTRY(group1_microinstructions_b), //
-  PROGRAM_ENTRY(operate_instructions),       //
-  PROGRAM_ENTRY(isz_instructions),           //
-  PROGRAM_ENTRY(jms_instructions),           //
-  PROGRAM_ENTRY(jmp_instruction),            //
-  PROGRAM_ENTRY(ac_increment),               //
-  PROGRAM_ENTRY(checkerboard_00007777),
+  PROGRAM_ENTRY(020, group1_microinstructions_a), //
+  PROGRAM_ENTRY(021, group1_microinstructions_b), //
+  PROGRAM_ENTRY(022, operate_instructions),       //
+  PROGRAM_ENTRY(023, isz_instructions),           //
+  PROGRAM_ENTRY(024, jms_instructions),           //
+  PROGRAM_ENTRY(025, jmp_instruction),            //
+  PROGRAM_ENTRY(026, ac_increment),               //
+  PROGRAM_ENTRY(027, checkerboard_00007777),
 
   // group 3x
 
-  PROGRAM_ENTRY(checkerboard_52522525),      //
-  PROGRAM_ENTRY(print_swreg),                //
-  PROGRAM_ENTRY(console_print_test),         //
-  PROGRAM_ENTRY(echo_test_terminal_03),      //
-  PROGRAM_ENTRY(echo_test_1_to_4_terminals), //
-  PROGRAM_ENTRY(pc04_punch_alternating_1_0), //
-  PROGRAM_ENTRY(pc04_tape_read),             //
-  PROGRAM_ENTRY(receive_char_from_term_03),  //
+  PROGRAM_ENTRY(030, checkerboard_52522525),      //
+  PROGRAM_ENTRY(031, print_swreg),                //
+  PROGRAM_ENTRY(032, console_print_test),         //
+  PROGRAM_ENTRY(033, echo_test_terminal_03),      //
+  PROGRAM_ENTRY(034, echo_test_1_to_4_terminals), //
+  PROGRAM_ENTRY(035, pc04_punch_alternating_1_0), //
+  PROGRAM_ENTRY(036, pc04_tape_read),             //
+  PROGRAM_ENTRY(037, receive_char_from_term_03),  //
 
   // group 4x
   PROGRAM_ENTRY(memwipe_field0_vince) //
@@ -597,7 +597,7 @@ void SwitchRegister(word LoadData)
   Wire.beginTransmission(0x20);
   Wire.write(GPIOA);              // gpioa
   Wire.write(byte(WordA) & 0xFF); // set A outputs to WordA
-  Wire.write(byte(WordB) & 0xFF); // set B outputs to WordA
+  Wire.write(byte(WordB) & 0xFF); // set B outputs to WordB
   Wire.endTransmission();
 }
 
@@ -758,18 +758,18 @@ void kitt_flash(word address)
 
 void Kitt()
 {
+  static const word kitt_sequence[] = { 0x0001, 0x0003, 0x0007, 0x0016, 0x0034, 0x0070, 0x0160,
+                                        0x0340, 0x0700, 0x1600, 0x3400, 0x7000, 0x6000, 0x4000,
+										0x4000, 0x6000, 0x7000, 0x3400, 0x1600, 0x0700, 0x0340,
+										0x0160, 0x0070, 0x0340, 0x0160, 0x0007, 0x0003, 0x0001};
+
+
+# define KITT_LENGTH (sizeof(kitt_sequence) / sizeof(word))
+
   SingleStep();
 
-  static const word kitt_sequence[] = { 0x0001, 0x0003, 0x0007, 0x0016, 0x0034, 0x0070, 0x0160,
-                                        0x0340, 0x0700, 0x1600, 0x3400, 0x7000, 0x6000, 0x4000 };
-
-#define KITT_LENGTH (sizeof(kitt_sequence) / sizeof(word))
-  for (int i = 0; i < KITT_LENGTH; i++) {
+  for (int i = (1 - KITT_LENGTH); i < KITT_LENGTH; i++) {
     kitt_flash(kitt_sequence[i]);
   }
-  for (int i = (KITT_LENGTH - 2); i; i--) {
-    kitt_flash(kitt_sequence[i]);
-  }
-
   UndoSingleStep();
 }
